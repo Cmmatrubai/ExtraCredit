@@ -2,9 +2,9 @@
 
 It accepts a natural-language query and returns:
 - the original query
-- a generated SQL string (heuristic placeholder)
+- a generated SQL string (Gemini when configured, heuristic fallback)
 - tabular rows + column headers
-- a placeholder LLM-style narrative
+- an LLM narrative (Gemini when configured, fallback summary)
 
 If a SQLite database exists at backend/sample.db, results are fetched from it.
 Otherwise it falls back to in-memory mock data so the frontend still works.
@@ -13,6 +13,7 @@ Otherwise it falls back to in-memory mock data so the frontend still works.
 from __future__ import annotations
 
 import sqlite3
+import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -20,9 +21,16 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from gemini_client import is_gemini_configured
+from llm_answer import generate_answer
+from llm_generate_sql import generate_sql, sanitize_sql
+
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "sample.db"
+
+logger = logging.getLogger("extracredit")
+logging.basicConfig(level=logging.INFO)
 
 MOCK_ROWS: List[Dict[str, Any]] = [
     {
@@ -108,6 +116,9 @@ class QueryRequest(BaseModel):
     use_mock: bool = Field(
         default=False, description="Force mock data even if a SQLite DB exists."
     )
+    use_llm: bool = Field(
+        default=True, description="Use Gemini for SQL + narrative if configured."
+    )
 
 
 class QueryResponse(BaseModel):
@@ -117,6 +128,8 @@ class QueryResponse(BaseModel):
     rows: List[Dict[str, Any]]
     llm_output: str
     source: str
+    llm_used: bool
+    llm_error: Optional[str] = None
 
 
 app = FastAPI(title="Extra Credit NL→SQL Backend", version="0.1.0")
@@ -218,7 +231,7 @@ def llm_narrative(question: str, rows: List[Dict[str, Any]]) -> str:
     return (
         f"Your question: \"{question}\". Generated a filtered view over the orders table. "
         f"Returned {len(rows)} rows; total amount ${total:,.2f}. Status mix → {status_text or 'n/a'}. "
-        "Swap in your real LLM call here."
+        "Using a fallback local summary (Gemini not used)."
     )
 
 
@@ -232,7 +245,25 @@ def handle_query(payload: QueryRequest) -> QueryResponse:
     if not payload.query.strip():
         raise HTTPException(status_code=400, detail="Query text is required.")
 
-    sql = build_sql(payload.query, payload.limit)
+    sql = ""
+    used_llm = False
+    llm_error: Optional[str] = None
+    if payload.use_llm and is_gemini_configured():
+        try:
+            sql = generate_sql(payload.query, limit=payload.limit)
+            sql = sanitize_sql(sql)
+            used_llm = True
+        except Exception as exc:
+            sql = build_sql(payload.query, payload.limit)
+            llm_error = (
+                "Gemini SQL generation failed; fell back to heuristic SQL. "
+                f"{type(exc).__name__}: {exc}"
+            )
+            logger.exception("Gemini SQL generation failed")
+    else:
+        sql = build_sql(payload.query, payload.limit)
+        if payload.use_llm and not is_gemini_configured():
+            llm_error = "Gemini API key not detected; set GEMINI_API_KEY in backend/.env."
 
     rows: Optional[List[Dict[str, Any]]] = None
     source = "mock"
@@ -246,13 +277,29 @@ def handle_query(payload: QueryRequest) -> QueryResponse:
 
     columns = list(rows[0].keys()) if rows else []
 
+    llm_output = ""
+    if used_llm:
+        try:
+            llm_output = generate_answer(payload.query, sql, rows)
+        except Exception as exc:
+            llm_output = llm_narrative(payload.query, rows)
+            llm_error = llm_error or (
+                "Gemini narrative generation failed; used fallback summary. "
+                f"{type(exc).__name__}: {exc}"
+            )
+            logger.exception("Gemini narrative generation failed")
+    else:
+        llm_output = llm_narrative(payload.query, rows)
+
     response = QueryResponse(
         original_query=payload.query,
         generated_sql=sql,
         columns=columns,
         rows=rows,
-        llm_output=llm_narrative(payload.query, rows),
+        llm_output=llm_output,
         source=source,
+        llm_used=used_llm,
+        llm_error=llm_error,
     )
     return response
 

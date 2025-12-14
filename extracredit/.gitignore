@@ -1,0 +1,15 @@
+# Python
+**/.venv/
+**/__pycache__/
+*.pyc
+
+# Secrets
+**/.env
+
+# SQLite
+*.db
+
+# Node / Vite
+**/node_modules/
+**/dist/
+

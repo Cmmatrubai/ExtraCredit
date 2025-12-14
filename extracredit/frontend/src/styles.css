@@ -236,6 +236,12 @@ tr:hover td {
   margin-top: 10px;
 }
 
+.warn {
+  color: #92400e;
+  font-weight: 600;
+  margin: 10px 0 0;
+}
+
 .empty {
   text-align: center;
   color: #94a3b8;

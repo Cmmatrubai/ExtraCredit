@@ -112,7 +112,11 @@ function App() {
         </div>
         <div className="status">
           <span className="dot" />
-          <span>{data?.source ? `Backend: ${data.source}` : "Ready"}</span>
+          <span>
+            {data?.source
+              ? `Backend: ${data.source} • LLM: ${data.llm_used ? "Gemini" : "Fallback"}`
+              : "Ready"}
+          </span>
         </div>
       </header>
 
@@ -161,6 +165,7 @@ function App() {
             <div className="card">
               <h3>LLM Output</h3>
               <p>{data.llm_output}</p>
+              {data.llm_error ? <p className="warn">{data.llm_error}</p> : null}
             </div>
           </section>
 
