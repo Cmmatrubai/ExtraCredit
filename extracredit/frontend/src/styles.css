@@ -1,0 +1,260 @@
+:root {
+  color-scheme: light;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(120% 120% at 20% 20%, #eef4ff 0%, #f9f9fb 40%, #ffffff 70%);
+  color: #0f172a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: #3b82f6;
+  margin: 0 0 4px;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 32px;
+}
+
+.sub {
+  margin: 0;
+  color: #475569;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  background: #22c55e;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.15);
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+.input-card textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  font-size: 15px;
+  resize: vertical;
+}
+
+.label {
+  display: block;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+input[type="number"] {
+  width: 90px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+}
+
+.buttons {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+button {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(120deg, #2563eb, #7c3aed);
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.25);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 34px rgba(37, 99, 235, 0.35);
+}
+
+.ghost {
+  background: #f8fafc;
+  color: #0f172a;
+  box-shadow: none;
+  border: 1px solid #e2e8f0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 18px 0;
+}
+
+.mono {
+  font-family: "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
+  background: #f8fafc;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  margin: 0;
+}
+
+.code-block {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 12px;
+  border-radius: 12px;
+  font-family: "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.table-card {
+  margin-top: 8px;
+}
+
+.table-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.hint {
+  color: #64748b;
+  margin: 0;
+}
+
+.table-wrapper {
+  overflow: auto;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 12px;
+}
+
+th {
+  background: #f8fafc;
+  font-weight: 700;
+  cursor: pointer;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+td {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+tr:hover td {
+  background: #f8fafc;
+}
+
+.sort {
+  margin-left: 6px;
+  color: #2563eb;
+}
+
+.error {
+  color: #b91c1c;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.empty {
+  text-align: center;
+  color: #94a3b8;
+  padding: 20px;
+}
+
+@media (max-width: 640px) {
+  .buttons {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .status {
+    align-self: flex-start;
+  }
+  table {
+    min-width: unset;
+  }
+}
